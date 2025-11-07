@@ -46,6 +46,59 @@ def swim(my_heap, pos):
 
     return my_heap
 
+def priority(my_heap, parent, child):
+    return my_heap["cmp_function"](parent, child)
+
+def exchange(my_heap, pos1, pos2):
+    al.exchange(my_heap["elements"], pos1, pos2)
+    return my_heap
+
+def sink(my_heap, pos):
+    elements = my_heap["elements"]
+    heap_size = size(my_heap)
+    continuar = (2 * pos) <= heap_size
+    
+    while continuar:
+        child = 2 * pos         
+        
+        if child < heap_size and not priority(my_heap, al.get_element(elements, child), al.get_element(elements, child + 1)):
+            child += 1  
+        
+        if not priority(my_heap,al.get_element(elements, pos), al.get_element(elements, child)):
+            exchange(my_heap, pos, child)
+            pos = child
+            continuar = (2 * pos) <= heap_size
+        else:
+            continuar = False
+    
+    return my_heap
+
+def remove(my_heap):
+    if is_empty(my_heap):
+        return None
+        
+    elements = my_heap["elements"]
+    root = al.get_element(elements, 1)
+    root_value = pqe.get_value(root)
+    
+    last = al.get_element(elements, my_heap["size"])
+    al.change_info(elements, 1, last)
+    
+    al.remove_last(elements)
+    my_heap["size"] -= 1
+    
+    if not is_empty(my_heap):
+        sink(my_heap, 1)
+        
+    return root_value
+
+def get_first_priority(my_heap):
+    if is_empty(my_heap):
+        return None
+    
+    first = al.get_element(my_heap["elements"], 1)
+    return pqe.get_value(first)
+
 def insert(my_heap, priority, value):
     new_entry = pqe.new_pq_entry(priority, value)
     al.add_last(my_heap["elements"], new_entry)
@@ -53,3 +106,14 @@ def insert(my_heap, priority, value):
     new_pos = my_heap["size"]
     my_heap = swim(my_heap, new_pos)
     return my_heap
+
+def is_present_value(my_heap, value):
+    elements = my_heap["elements"]
+    heap_size = size(my_heap)
+
+    for pos in range(heap_size):
+        entry = al.get_element(elements, pos)
+        if pqe.get_value(entry) == value:
+            return pos
+
+    return -1
